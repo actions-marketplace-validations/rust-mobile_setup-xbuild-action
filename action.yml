@@ -1,0 +1,38 @@
+name: 'setup-xbuild-action'
+description: 'Installs xbuild from github releases.'
+inputs:
+  github_token:
+    description: "The secrets.GITHUB_TOKEN is required for the github cli to work"
+    required: true
+runs:
+  using: composite
+  steps:
+  - run: sudo mkdir -p /opt/xbuild/bin
+    shell: bash
+
+  - run: sudo chown $(whoami) /opt/xbuild/bin
+    shell: bash
+
+  - run: gh release download -p xbuild-linux-x64 -R rust-mobile/xbuild -O /opt/xbuild/bin/x
+    if: runner.os == 'Linux'
+    shell: bash
+    env:
+      GITHUB_TOKEN: ${{ inputs.github_token }}
+
+  - run: gh release download -p xbuild-macos-x64 -R rust-mobile/xbuild -O /opt/xbuild/bin/x
+    if: runner.os == 'macOS'
+    shell: bash
+    env:
+      GITHUB_TOKEN: ${{ inputs.github_token }}
+
+  - run: gh release download -p xbuild-windows-x64.exe -R rust-mobile/xbuild -O /opt/xbuild/bin/x.exe
+    if: runner.os == 'Windows'
+    shell: bash
+    env:
+      GITHUB_TOKEN: ${{ inputs.github_token }}
+
+  - run: chmod +x /opt/xbuild/bin/x
+    shell: bash
+
+  - run: echo "/opt/xbuild/bin" >> $GITHUB_PATH
+    shell: bash
